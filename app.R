@@ -207,6 +207,26 @@ server <- function(input, output, session = session) {
       )
   })
   
+  # Render bar chart ranking most populated towns
+  output$most.populated.chart <- renderPlotly({
+    barchart.data <- subset.tabular.data() %>% arrange(-total_units) %>%
+      mutate(rank = seq(1,nrow(.)))
+    custom.xaxis.ticks <- seq(1, nrow(barchart.data), 
+                              by=max(floor(nrow(barchart.data)/6), 1)) # avoid overcluttering rank axis
+    most.populated.chart <- ggplot(barchart.data, aes(x = rank, y = total_units, fill = coloredColumn,
+                                                      text = paste0("<b>", town, "</b>",
+                                                                    "<br>Rank: ", rank,
+                                                                    "<br>Count: ", format.num(total_units)))) +
+      geom_bar(stat="identity", position = "dodge") +
+      ggtitle(paste0("Most Populated Towns in ", input$yearSelect)) +
+      ylab("Total Apartment Units") +
+      xlab("Rank") +
+      scale_fill_distiller(palette = "YlOrRd", limits = get.color.palette.range(), direction = 1) +
+      scale_x_continuous(breaks = custom.xaxis.ticks) +
+      theme(axis.ticks.x=element_blank(), legend.position="none")
+    ggplotly(most.populated.chart, tooltip = "text")
+  })
+  
   # Render scatter plot of land area vs number of units
   output$land.area.vs.units <- renderPlotly({
     scatter.data <- subset.tabular.data()
