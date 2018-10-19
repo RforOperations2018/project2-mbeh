@@ -18,6 +18,14 @@ library(rgdal)
 pdf(NULL)
 sidebarWidth <- 300
 
+# Helper functions for formatting numbers and decimals in charts/maps
+format.num <- function(number){
+  return(prettyNum(number, big.mark=","))
+}
+format.density <- function(density){
+  return(round(density, 2))
+}
+
 # Get data from API
 source('./pull_api_data.R')
 all.towns <- unlist(unique(data.load$town))
