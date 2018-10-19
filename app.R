@@ -18,6 +18,12 @@ library(rgdal)
 pdf(NULL)
 sidebarWidth <- 300
 
+# Get data from API
+source('./pull_api_data.R')
+all.towns <- unlist(unique(data.load$town))
+all.unit.types <- names(hdb.units.spread)[3:(length(hdb.units.spread)-1)]
+all.years <- unlist(unique(data.load$financial_year))
+
 # Define header, sidebar and body of shinydashboard
 header <- dashboardHeader(title = "HDB Singapore Census", titleWidth = sidebarWidth)
 sidebar <- dashboardSidebar(
