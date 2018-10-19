@@ -1,0 +1,13 @@
+name: project2
+title: project2
+username:
+account: mbeh
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 525555
+bundleId: 1652212
+url: https://mbeh.shinyapps.io/project2/
+when: 1539985129.60979
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: api_auth.Rmd|.config/credentials.R|www/.DS_Store
