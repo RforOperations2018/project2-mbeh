@@ -154,6 +154,19 @@ server <- function(input, output, session = session) {
       mutate(density = total_units / total_land_area)
     return(merged.data)
   })
+  # Render Data Table of HDB data (based on reactive selection)
+  output$dataTable <- renderDataTable({
+    raw.data <- subset.data.plus.unit.types() %>% select(town, total_land_area, everything(), -density) %>%
+      rename(Town = town, LandArea = total_land_area, Total = total_units)
+    datatable(raw.data, rownames = FALSE, options = list(pageLength = 25, lengthMenu = c(10, 15, 25))) %>%
+      formatStyle('Town', fontWeight = 'bold') %>% 
+      formatCurrency(columns=c('LandArea'), digits = 0, currency = " Hectares", before = FALSE) %>% 
+      formatCurrency(columns=c('Total'), digits = 0, currency = "")
+  })
+  # Reactively parse Data Table title (based on year selection)
+  output$dataTableTitle <- renderText({ 
+    paste0("Raw Data Selection for Year ", input$yearSelect)
+  })
   # Download filtered HDB data from datatable
   output$downloadRawData <- downloadHandler(
     filename = function(){
