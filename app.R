@@ -182,6 +182,23 @@ server <- function(input, output, session = session) {
                attribution = "Google") %>%
       # Overlay map layer 1: Singapore Railway Network as lines
       addPolylines(data = rail.lines.load, color = 'black', opacity = 1, weight = 2, group = "Rail Network") %>%
+      # Overlay map layer 2: Singapore Towns as polygons
+      addPolygons(data = reactive.polygon.data, group = "Towns",
+                  fillColor = ~palette(color.values),
+                  color = "white",
+                  dashArray = 3,
+                  fillOpacity = 0.7,
+                  highlight = highlightOptions(
+                    weight = 4,
+                    color = "#666",
+                    dashArray = "",
+                    fillOpacity = 1,
+                    bringToFront = TRUE),
+                  label = tooltip.labels, labelOptions = labelOptions(direction = "top"), 
+                  weight = 2, opacity = 1) %>%
+      addLegend(pal = palette, title = attr.title, position = "topright", values = color.values,
+                labFormat = labelFormat(suffix = attr.suffix),
+                group = "Towns") %>%
       # Layers control
       addLayersControl(
         overlayGroups = c("Towns", "Rail Network"),
