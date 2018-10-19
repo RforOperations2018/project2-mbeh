@@ -206,6 +206,22 @@ server <- function(input, output, session = session) {
         options = layersControlOptions(collapsed = FALSE)
       )
   })
+  
+  # Render scatter plot of land area vs number of units
+  output$land.area.vs.units <- renderPlotly({
+    scatter.data <- subset.tabular.data()
+    scatter.plot <- ggplot(scatter.data, aes(x = total_land_area, y = total_units, color = coloredColumn,
+                                             text = paste0('<b> ', town, '</b>',
+                                                           '<br><b> Area: </b>', total_land_area, ' hectares',
+                                                           '<br><b> Total Units: </b>', format.num(total_units),
+                                                           '<br><b>', format.density(density), ' apartments/Ha</b>'))) + 
+      geom_point(size = 3) +
+      xlab("Land Area in Hectares") + ylab("Total Apartment Units") +
+      scale_colour_distiller(palette = "YlOrRd", limits = get.color.palette.range(), direction = 1) +
+      theme(legend.position = "none")
+    ggplotly(scatter.plot, tooltip = "text")
+  })
+  
   # Render Data Table of HDB data (based on reactive selection)
   output$dataTable <- renderDataTable({
     raw.data <- subset.data.plus.unit.types() %>% select(town, total_land_area, everything(), -density) %>%
