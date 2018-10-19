@@ -19,6 +19,12 @@ rail.lines.zip <- './data/rail_lines.zip'
 rail.lines.kml.zip <- './data/rail_lines/mp08-rail-line-kml.zip'
 rail.lines.file <- './data/rail_lines/G_MP08_RAIL_LI.kml'
 
+#### Create output directory if doesn't exist
+data.directory <- "./data"
+if (!file.exists(data.directory)){
+  dir.create(data.directory)
+}
+
 #### Download and unzip files
 download.file(hdb.units.api, "wget", destfile = hdb.units.raw.zip)
 unzip(hdb.units.raw.zip, exdir = strsplit(hdb.units.raw.zip, ".zip")[[1]])
