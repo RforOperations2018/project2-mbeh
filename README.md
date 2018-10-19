@@ -8,7 +8,7 @@ By: Min Yan BEH (mbeh)
 
 Project 2 has been deployed on https://mbeh.shinyapps.io/project2/
 
-*Note: Pls wait 3-5 seconds for charts anad maps to load.*
+*Note: Pls wait 3-5 seconds for charts and maps to load.*
 
 ### Dataset Source
 
@@ -27,8 +27,8 @@ Links to data sources:
 
 Background:
 
-* I grew up in Jurong West, the most populated town in Singapore in terms of number of apartment units. 
-* This is significant as 80% of all Singaporeans live in these HDB (government-built) units ([Economist.com](https://www.economist.com/asia/2017/07/06/why-80-of-singaporeans-live-in-government-built-flats)). Growing up, I absolutely hated going to the crowded malls in the weekends.
-* Very recently, my parents decided to move to Tampines Town (of ALL places), which happens to be the second most populated town.
+* I grew up in Jurong West, the most populated town in Singapore in terms of number of HDB apartment units. 
+* This is significant as 80% of all Singaporeans live in these HDB units ([Economist.com](https://www.economist.com/asia/2017/07/06/why-80-of-singaporeans-live-in-government-built-flats)). Growing up, I absolutely hated going to the crowded malls in the weekends.
+* Very recently, my parents decided to move to Tampines Town (of ALL places), which also happens to be the second most populated town.
 
 As I might be living with my parents for a few more years, I’m creating this visualization mostly for my parents, hopefully to convince them to change their mind. Otherwise, I might just start accepting reality and comfort myself with the fact that the densest town is Choa Chua Kang, at the whopping 84 units per hectare, which I recently learnt from doing this project.
