@@ -31,6 +31,32 @@ download.file(rail.lines.api, "wget", destfile = rail.lines.zip)
 unzip(rail.lines.zip, exdir = strsplit(rail.lines.zip, ".zip")[[1]])
 unzip(rail.lines.kml.zip, exdir = strsplit(rail.lines.zip, ".zip")[[1]])
 
+#### Data Cleaning of HDB units data
+# Rename columns / remove spaces in column names where possible
+hdb.units.raw <- read_csv(hdb.units.file) %>% rename(town = town_or_estate)
+hdb.units.raw <- hdb.units.raw %>% filter(town != "Central Area", flat_type != "HUDC")
+hdb.units.raw[hdb.units.raw=="Studio Apartment"] <- "Studio"
+hdb.units.raw[hdb.units.raw=="Rental Units"] <- "rental_units"
+hdb.units.raw[hdb.units.raw=="Sold Units"] <- "sold_units"
+hdb.units.raw$town <- sapply(as.list(hdb.units.raw$town), toupper)
+# Spread data (2 times) from long to wide (for data table display)
+hdb.units.load <- spread(hdb.units.raw, key = sold_or_rental, value = no_of_dwelling_units)
+hdb.units.load[is.na(hdb.units.load)] <- 0
+hdb.units.load <- hdb.units.load %>% mutate(total_units = rental_units + sold_units)
+hdb.units.spread <- hdb.units.load %>% select(financial_year, town, flat_type, total_units) %>% 
+  spread(key = flat_type, value = total_units) %>% 
+  mutate(total_units = rowSums(.[3:length(.)]))
+
+#### Data Cleaning of Land Area data
+land.area.raw <- read_csv(land.area.file) %>% select(financial_year, town, total_land_area) %>%
+  mutate(total_land_area = as.numeric(total_land_area))
+# Rename columns so that town names are capitalized, consistent with other datasets
+land.area.raw$town <- sapply(as.list(land.area.raw$town), toupper)
+
+#### Merge HDB units and Land Area data (for data table display)
+data.load <- merge(hdb.units.spread, land.area.raw, by = c("financial_year", "town")) %>%
+  mutate(density = total_units / total_land_area)
+
 #### Read geospatial files
 polygons.load <- readOGR(towns.map.file, layer = "Planning_Area_Census2010")
 rail.lines.load <- readOGR(rail.lines.file)
