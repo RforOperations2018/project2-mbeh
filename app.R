@@ -40,7 +40,30 @@ sidebar <- dashboardSidebar(
     id = "tabs",
     # Sidebar Menu for Charts/Maps & DataTable
     menuItem("Visualizations", icon = icon("bar-chart"), tabName = "charts"),
-    menuItem("Database", icon = icon("table"), tabName = "table")
+    menuItem("Database", icon = icon("table"), tabName = "table"),
+    # Selection of Dataset Year
+    selectInput("yearSelect", "Year:", 
+                width = sidebarWidth - 20,
+                choices = sort(all.years, decreasing = TRUE),
+                selected = max(all.years)),
+    # Multi-Select Input of Towns
+    selectInput("townSelect", "Towns:",
+                width = sidebarWidth - 20,
+                choices = sort(unique(all.towns)),
+                multiple = TRUE,
+                selectize = TRUE,
+                selected = unlist(head(data.load %>% arrange(-total_units) %>% distinct(town)))),
+    # Button for selecting all towns
+    actionButton("selectAllTowns", "Select All Towns", icon = icon("hand-pointer-o")),
+    # Radio Selection of Data Attribute to color towns by
+    radioButtons("colorByAttribute", "Color Towns By:",
+                 choices = list("Number of Apartment Units" = "total_units", 
+                                "Density (per hectare)" = "density"),
+                 selected = "total_units"),
+    # Checkbox Selection of Unit Types filter for breakdown chart
+    checkboxGroupInput("unitTypeSelect", "Unit Types for Breakdown Chart:",
+                       choices = all.unit.types,
+                       selected = c("3-room", "4-room", "5-room"))
   )
 )
 body <- dashboardBody(
