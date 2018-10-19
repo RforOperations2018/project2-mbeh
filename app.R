@@ -52,6 +52,7 @@ sidebar <- dashboardSidebar(
                 choices = sort(unique(all.towns)),
                 multiple = TRUE,
                 selectize = TRUE,
+                # select top 6 most populated towns from housing data
                 selected = unlist(head(data.load %>% arrange(-total_units) %>% distinct(town)))),
     # Button for selecting all towns
     actionButton("selectAllTowns", "Select All Towns", icon = icon("hand-pointer-o")),
@@ -102,6 +103,57 @@ ui <- dashboardPage(title = "Singapore Housing Data",
 
 # Define server logic
 server <- function(input, output, session = session) {
+  
+  # Reactively define numeric range of color palette based on colorByAttribute
+  get.color.palette.range <- reactive({
+    column.to.color.by <- data.load[input$colorByAttribute]
+    return(c(min(column.to.color.by), max(column.to.color.by)))
+  })
+  # Reactively define towns selected (if none selected, display all towns)
+  selected.towns <- reactive({
+    if(length(input$townSelect) == 0){
+      return(all.towns)
+    }
+    return(input$townSelect)
+  })
+  # Subset Polygon data (only selected town names) with reactive method
+  subset.polygon.data <- reactive({
+    polygons.subset <- polygons.load[polygons.load$Name %in% selected.towns(), ]
+    return(polygons.subset[order(polygons.subset$Name),]) # order polygons by alphabetical Town name
+  })
+  # Subset Tabular HDB data by towns with reactive method
+  subset.tabular.data <- reactive({
+    data.subset <- data.load %>% 
+      filter(financial_year == input$yearSelect) %>%     # filter by year selected
+      filter(town %in% selected.towns()) %>%             # filter by towns selected
+      select(-financial_year)
+    # dynamically decide color scheme based on input
+    data.subset$coloredColumn <- data.subset$total_units
+    if(input$colorByAttribute == "density"){
+      data.subset$coloredColumn <- data.subset$density
+    }
+    return(data.subset)
+  })
+  # Subset HDB data by selected unit types as well - only for UnitTypes Breakdown Chart & Data Table
+  subset.data.plus.unit.types <- reactive({
+    selected.unit.types <- input$unitTypeSelect
+    if(length(input$unitTypeSelect) == 0){ # display all unit types if none was selected
+      selected.unit.types <- all.unit.types
+    }
+    unit.types.subset <- hdb.units.load %>% 
+      filter(financial_year == input$yearSelect) %>%      # filter by year selected
+      filter(town %in% selected.towns()) %>%              # filter by towns selected
+      filter(flat_type %in% selected.unit.types) %>%      # filter by unit type
+      select(town, flat_type, total_units) %>%
+      spread(key = flat_type, value = total_units) %>% 
+      mutate(total_units = rowSums(.[2:length(.)]))
+    land.area.subset <- land.area.raw %>% filter(financial_year == input$yearSelect) %>% # filter by year
+      select(-financial_year)
+    # remerge with land area data after only filtered by unit types
+    merged.data <- merge(unit.types.subset, land.area.subset, by = "town") %>%
+      mutate(density = total_units / total_land_area)
+    return(merged.data)
+  })
 }
 
 # Run the application 
