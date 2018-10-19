@@ -154,6 +154,29 @@ server <- function(input, output, session = session) {
       mutate(density = total_units / total_land_area)
     return(merged.data)
   })
+  # Download filtered HDB data from datatable
+  output$downloadRawData <- downloadHandler(
+    filename = function(){
+      paste0('singapore-', input$yearSelect, '-housing-data-', Sys.Date(), '.csv')
+    },
+    content = function(file) {
+      dataForDownload <- subset.data.plus.unit.types() %>% select(town, total_land_area, everything(), -density)
+      write.csv(dataForDownload, file, row.names=FALSE)
+    }
+  )
+  # Observe 'townSelect' input for addition of towns to control hide/show 'Select All' button
+  observeEvent(input$townSelect, {
+    # Show 'Select All Towns' button if some towns have not been selected
+    if (length(input$townSelect) < length(all.towns)){
+      shinyjs::show(id = "selectAllTowns", anim = TRUE, animType = "fade", time = 0.3)
+    } else {
+      hide(id = "selectAllTowns", anim = TRUE, animType = "fade", time = 0.2)
+    }
+  })
+  # Observe clicks on 'Select All Towns' button to fill input with all towns
+  observeEvent(input$selectAllTowns, {
+    updateSelectInput(session, "townSelect", selected = all.towns)
+  })
 }
 
 # Run the application 
