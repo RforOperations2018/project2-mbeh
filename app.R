@@ -154,6 +154,41 @@ server <- function(input, output, session = session) {
       mutate(density = total_units / total_land_area)
     return(merged.data)
   })
+  # Render leaflet map based on subset data
+  output$map <- renderLeaflet({
+    # get data and palette from reactive methods
+    reactive.polygon.data <- subset.polygon.data()
+    reactive.table.data <- subset.tabular.data()
+    palette <- colorBin("YlOrRd", domain = get.color.palette.range(), bins = 5)
+    
+    # define display attributes of table
+    attr.title <- "Number of Apartments"
+    attr.suffix <- " units"
+    color.values <- unlist(reactive.table.data$coloredColumn)
+    if(input$colorByAttribute == "density"){
+      attr.title <- "Density"
+      attr.suffix <- " units per ha"
+    }
+    tooltip.labels <- sprintf(
+      "<strong>%s</strong><br/>%s apartment units<br/>%g units per hectare",
+      reactive.polygon.data$Name, 
+      format.num(reactive.table.data$total_units), 
+      format.density(reactive.table.data$density)
+    ) %>% lapply(htmltools::HTML)
+    
+    # render and return leaflet map
+    leaflet() %>%
+      addTiles(urlTemplate = "http://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}&s=Ga",
+               attribution = "Google") %>%
+      # Overlay map layer 1: Singapore Railway Network as lines
+      addPolylines(data = rail.lines.load, color = 'black', opacity = 1, weight = 2, group = "Rail Network") %>%
+      # Layers control
+      addLayersControl(
+        overlayGroups = c("Towns", "Rail Network"),
+        position = "bottomright",
+        options = layersControlOptions(collapsed = FALSE)
+      )
+  })
   # Render Data Table of HDB data (based on reactive selection)
   output$dataTable <- renderDataTable({
     raw.data <- subset.data.plus.unit.types() %>% select(town, total_land_area, everything(), -density) %>%
