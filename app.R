@@ -241,6 +241,23 @@ server <- function(input, output, session = session) {
       theme(legend.position = "none")
     ggplotly(scatter.plot, tooltip = "text")
   })
+
+  # Render bar chart with breakdown of unit types for each town
+  output$unit.types.breakdown <- renderPlotly({
+    barchart.data <- subset.data.plus.unit.types()
+    barchart.data <- barchart.data[1:(length(barchart.data) - 3)] # only choose columns with unit type data
+    melted.data <- barchart.data %>% melt(id.vars = 1, variable.name = 'UnitType', value.name = 'Count')
+    breakdown.chart <- ggplot(melted.data, aes(x = town, y = Count,
+                                        fill = UnitType,
+                                        text = paste0("<b>", town, "</b>",
+                                                      "<br>Type: ", UnitType,
+                                                      "<br>Count: ", format.num(Count)))) +
+      geom_bar(stat="identity", position = "dodge", color = "gray") +
+      ggtitle("Breakdown by Unit Type") + xlab("Town Name") +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      scale_fill_brewer(palette = "Set3")
+    ggplotly(breakdown.chart, tooltip = "text")
+  })
   
   # Render Data Table of HDB data (based on reactive selection)
   output$dataTable <- renderDataTable({
