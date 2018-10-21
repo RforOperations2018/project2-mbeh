@@ -18,6 +18,7 @@ towns.map.file <- './data/map/Planning_Area_Census2010.kml'
 rail.lines.zip <- './data/rail_lines.zip'
 rail.lines.kml.zip <- './data/rail_lines/mp08-rail-line-kml.zip'
 rail.lines.file <- './data/rail_lines/G_MP08_RAIL_LI.kml'
+# So this isn't really the way you were meant to use the API's for the assignment, the idea is to only call the data you will need for the user, so your land area, you didn't actually call the API using any parameters, instead you downloaded the whole file, this makes the load time at the start of your app to be rather long. It's not like you couldn't have used the CKAN API as documented on data.gov.sg it seems a bit different from the WPRDC, but it's still there.
 
 #### Create output directory if doesn't exist
 data.directory <- "./data"
@@ -41,6 +42,7 @@ unzip(rail.lines.kml.zip, exdir = strsplit(rail.lines.zip, ".zip")[[1]])
 # Rename columns / remove spaces in column names where possible
 hdb.units.raw <- read_csv(hdb.units.file) %>% rename(town = town_or_estate)
 hdb.units.raw <- hdb.units.raw %>% filter(town != "Central Area", flat_type != "HUDC")
+# You need to embrace the superiority of the full tidy verse, case_when() is perfect for cleaning stuff like this.
 hdb.units.raw[hdb.units.raw=="Studio Apartment"] <- "Studio"
 hdb.units.raw[hdb.units.raw=="Rental Units"] <- "rental_units"
 hdb.units.raw[hdb.units.raw=="Sold Units"] <- "sold_units"
